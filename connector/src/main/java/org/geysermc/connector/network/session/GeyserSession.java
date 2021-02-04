@@ -429,7 +429,8 @@ public class GeyserSession implements CommandSender {
     }
 
     public void login() {
-        if (connector.getAuthType() != AuthType.ONLINE : AuthType.FLOODGATE) {
+        final AuthType authType = GeyserConnector.getInstance().getConfig().isFloodgateLoginEnabled() ? AuthType.FLOODGATE : AuthType.ONLINE;
+        if (connector.getAuthType() != authType) {
             if (connector.getAuthType() == AuthType.OFFLINE) {
                 connector.getLogger().info(LanguageUtils.getLocaleStringLog("geyser.auth.login.offline"));
             } else {
