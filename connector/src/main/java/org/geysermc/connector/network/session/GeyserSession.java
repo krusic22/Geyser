@@ -680,8 +680,8 @@ public class GeyserSession implements CommandSender {
             downstream.getSession().setFlag(BuiltinFlags.CLIENT_PROXIED_ADDRESS, upstream.getAddress());
         }
         if (connector.getConfig().isForwardPlayerPing()) {
-        // Let Geyser handle sending the keep alive
-        downstream.getSession().setFlag(MinecraftConstants.AUTOMATIC_KEEP_ALIVE_MANAGEMENT, false);
+            // Let Geyser handle sending the keep alive
+            downstream.getSession().setFlag(MinecraftConstants.AUTOMATIC_KEEP_ALIVE_MANAGEMENT, false);
         }
         downstream.getSession().addListener(new SessionAdapter() {
             @Override
@@ -873,7 +873,7 @@ public class GeyserSession implements CommandSender {
         if (mouseoverEntity != null) {
             // Horses, etc can change their property depending on if you're sneaking
             InteractiveTagManager.updateTag(this, mouseoverEntity);
-    }
+        }
     }
 
     private void setSneakingPose(boolean sneaking) {
