@@ -57,8 +57,25 @@ public class SettingsUtils {
         CustomFormBuilder builder = new CustomFormBuilder(LanguageUtils.getPlayerLocaleString("geyser.settings.title.main", language));
         builder.setIcon(new FormImage(FormImage.FormImageType.PATH, "textures/ui/settings_glyph_color_2x.png"));
 
-        builder.addComponent(new LabelComponent(LanguageUtils.getPlayerLocaleString("geyser.settings.title.client", language)));
-        builder.addComponent(new ToggleComponent(LanguageUtils.getPlayerLocaleString("geyser.settings.option.coordinates", language), session.getWorldCache().isShowCoordinates()));
+        // Only show the client title if any of the client settings are available
+        if (session.getPreferencesCache().isAllowShowCoordinates() || CooldownUtils.getDefaultShowCooldown() != CooldownUtils.CooldownType.DISABLED) {
+            builder.addComponent(new LabelComponent(LanguageUtils.getPlayerLocaleString("geyser.settings.title.client", language)));
+
+            // Client can only see its coordinates if reducedDebugInfo is disabled and coordinates are enabled in geyser config.
+            if (session.getPreferencesCache().isAllowShowCoordinates()) {
+                builder.addComponent(new ToggleComponent(LanguageUtils.getPlayerLocaleString("geyser.settings.option.coordinates", language), session.getPreferencesCache().isPrefersShowCoordinates()));
+            }
+
+            if (CooldownUtils.getDefaultShowCooldown() != CooldownUtils.CooldownType.DISABLED) {
+                DropdownComponent cooldownDropdown = new DropdownComponent();
+                cooldownDropdown.setText(LocaleUtils.getLocaleString("options.attackIndicator", language));
+                cooldownDropdown.setOptions(new ArrayList<>());
+                cooldownDropdown.addOption(LocaleUtils.getLocaleString("options.attack.crosshair", language), session.getPreferencesCache().getCooldownPreference() == CooldownUtils.CooldownType.TITLE);
+                cooldownDropdown.addOption(LocaleUtils.getLocaleString("options.attack.hotbar", language), session.getPreferencesCache().getCooldownPreference() == CooldownUtils.CooldownType.ACTIONBAR);
+                cooldownDropdown.addOption(LocaleUtils.getLocaleString("options.off", language), session.getPreferencesCache().getCooldownPreference() == CooldownUtils.CooldownType.DISABLED);
+                builder.addComponent(cooldownDropdown);
+            }
+        }
 
 
         if (session.getOpPermissionLevel() >= 2 || session.hasPermission("geyser.settings.server")) {
@@ -117,10 +134,22 @@ public class SettingsUtils {
         }
         int offset = 0;
 
-        offset++; // Client settings title
+        if (session.getPreferencesCache().isAllowShowCoordinates() || CooldownUtils.getDefaultShowCooldown() != CooldownUtils.CooldownType.DISABLED) {
+            offset++; // Client settings title
 
-        session.getWorldCache().setShowCoordinates(settingsResponse.getToggleResponses().get(offset));
-        offset++;
+            // Client can only see its coordinates if reducedDebugInfo is disabled and coordinates are enabled in geyser config.
+            if (session.getPreferencesCache().isAllowShowCoordinates()) {
+                session.getPreferencesCache().setPrefersShowCoordinates(settingsResponse.getToggleResponses().get(offset));
+                session.getPreferencesCache().updateShowCoordinates();
+                offset++;
+            }
+
+            if (CooldownUtils.getDefaultShowCooldown() != CooldownUtils.CooldownType.DISABLED) {
+                CooldownUtils.CooldownType cooldownType = CooldownUtils.CooldownType.VALUES[settingsResponse.getDropdownResponses().get(offset).getElementID()];
+                session.getPreferencesCache().setCooldownPreference(cooldownType);
+                offset++;
+            }
+        }
 
         if (session.getOpPermissionLevel() >= 2 || session.hasPermission("geyser.settings.server")) {
             offset++; // Server settings title
