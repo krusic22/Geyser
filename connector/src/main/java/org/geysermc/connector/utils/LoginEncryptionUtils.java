@@ -292,28 +292,4 @@ public class LoginEncryptionUtils {
                         })
         );
     }
-
-    public static void showLoginWindow(GeyserSession session) {
-        // Set DoDaylightCycle to false so the time doesn't accelerate while we're here
-        session.setDaylightCycle(false);
-
-        String userLanguage = session.getLocale();
-        SimpleFormWindow window = new SimpleFormWindow(LanguageUtils.getPlayerLocaleString("geyser.auth.login.form.notice.title", userLanguage), LanguageUtils.getPlayerLocaleString("geyser.auth.login.form.notice.desc", userLanguage));
-        if (session.getConnector().getConfig().getRemote().isPasswordAuthentication()) {
-            window.getButtons().add(new FormButton(LanguageUtils.getPlayerLocaleString("geyser.auth.login.form.notice.btn_login.mojang", userLanguage)));
-        }
-        window.getButtons().add(new FormButton(LanguageUtils.getPlayerLocaleString("geyser.auth.login.form.notice.btn_disconnect", userLanguage)));
-
-        session.sendForm(window, AUTH_FORM_ID);
-    }
-
-    public static void showLoginDetailsWindow(GeyserSession session) {
-        String userLanguage = session.getLocale();
-        CustomFormWindow window = new CustomFormBuilder(LanguageUtils.getPlayerLocaleString("geyser.auth.login.form.details.title", userLanguage))
-                .addComponent(new LabelComponent(LanguageUtils.getPlayerLocaleString("geyser.auth.login.form.details.desc", userLanguage)))
-                .addComponent(new InputComponent(LanguageUtils.getPlayerLocaleString("geyser.auth.login.form.details.email", userLanguage), "Username", ""))
-                .build();
-
-        session.sendForm(window, AUTH_DETAILS_FORM_ID);
-    }
 }
