@@ -191,7 +191,7 @@ public class LoginEncryptionUtils {
                         .title("geyser.auth.login.form.notice.title")
                         .content("geyser.auth.login.form.notice.desc")
                         .optionalButton("geyser.auth.login.form.notice.btn_login.mojang", isPasswordAuthEnabled)
-                        .button("geyser.auth.login.form.notice.btn_login.microsoft")
+                        //.button("geyser.auth.login.form.notice.btn_login.microsoft") -- Not needed
                         .button("geyser.auth.login.form.notice.btn_disconnect")
                         .responseHandler((form, responseData) -> {
                             SimpleFormResponse response = form.parseResponse(responseData);
@@ -228,8 +228,8 @@ public class LoginEncryptionUtils {
                         .translator(LanguageUtils::getPlayerLocaleString, session.getLocale())
                         .title("geyser.auth.login.form.details.title")
                         .label("geyser.auth.login.form.details.desc")
-                        .input("geyser.auth.login.form.details.email", "account@geysermc.org", "")
-                        .input("geyser.auth.login.form.details.pass", "123456", "")
+                        .input("geyser.auth.login.form.details.email", "username", "")
+                        //.input("geyser.auth.login.form.details.pass", "123456", "") -- Not needed
                         .responseHandler((form, responseData) -> {
                             CustomFormResponse response = form.parseResponse(responseData);
                             if (!response.isCorrect()) {
