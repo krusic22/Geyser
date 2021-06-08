@@ -100,8 +100,9 @@ import org.geysermc.connector.skin.SkinManager;
 import org.geysermc.connector.utils.*;
 import org.geysermc.cumulus.Form;
 import org.geysermc.cumulus.util.FormBuilder;
-import org.geysermc.floodgate.util.BedrockData;
 import org.geysermc.floodgate.crypto.FloodgateCipher;
+import org.geysermc.floodgate.util.BedrockData;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -683,7 +684,7 @@ public class GeyserSession implements CommandSender {
 
                             encryptedData = cipher.encryptFromString(BedrockData.of(
                                     clientData.getGameVersion(),
-                                protocol.getProfile().getName(),
+                                    protocol.getProfile().getName(),
                                     authData.getXboxUUID(),
                                     clientData.getDeviceOs().ordinal(),
                                     clientData.getLanguageCode(),
@@ -796,7 +797,7 @@ public class GeyserSession implements CommandSender {
                             // We'll send the skin upload a bit after the handshake packet (aka this packet),
                             // because otherwise the global server returns the data too fast.
                             getAuthData().upload(connector);
-                    }
+                        }
                     }
 
                     PacketTranslatorRegistry.JAVA_TRANSLATOR.translate(event.getPacket().getClass(), event.getPacket(), GeyserSession.this);
@@ -990,12 +991,12 @@ public class GeyserSession implements CommandSender {
         upstream.sendPacket(chunkRadiusUpdatedPacket);
     }
 
-    public void sendForm(Form form) {
-        formCache.showForm(form);
-    }
-
     public InetSocketAddress getSocketAddress() {
         return this.upstream.getAddress();
+    }
+
+    public void sendForm(Form form) {
+        formCache.showForm(form);
     }
 
     public void sendForm(FormBuilder<?, ?> formBuilder) {
@@ -1176,7 +1177,7 @@ public class GeyserSession implements CommandSender {
 
     /**
      * Queue a packet to be sent to player.
-     * 
+     *
      * @param packet the bedrock packet from the NukkitX protocol lib
      */
     public void sendUpstreamPacket(BedrockPacket packet) {

@@ -174,6 +174,7 @@ public class UpstreamPacketHandler extends LoggingPacketHandler {
     @Override
     public boolean handle(SetLocalPlayerAsInitializedPacket packet) {
         LanguageUtils.loadGeyserLocale(session.getLocale());
+
         if (!session.isLoggedIn() && !session.isLoggingIn() && (session.getRemoteAuthType() == AuthType.ONLINE || session.getRemoteAuthType() == AuthType.FLOODGATE)) {
             // TODO it is safer to key authentication on something that won't change (UUID, not username)
             if (!couldLoginUserByName(session.getAuthData().getName())) {

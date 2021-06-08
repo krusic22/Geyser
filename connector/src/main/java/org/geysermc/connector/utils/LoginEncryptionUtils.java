@@ -35,13 +35,13 @@ import com.nukkitx.network.util.Preconditions;
 import com.nukkitx.protocol.bedrock.packet.LoginPacket;
 import com.nukkitx.protocol.bedrock.packet.ServerToClientHandshakePacket;
 import com.nukkitx.protocol.bedrock.util.EncryptionUtils;
-import org.geysermc.connector.configuration.GeyserConfiguration;
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.configuration.GeyserConfiguration;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.cumulus.CustomForm;
 import org.geysermc.connector.network.session.auth.AuthData;
-import org.geysermc.cumulus.ModalForm;
 import org.geysermc.connector.network.session.auth.BedrockClientData;
+import org.geysermc.cumulus.CustomForm;
+import org.geysermc.cumulus.ModalForm;
 import org.geysermc.cumulus.SimpleForm;
 import org.geysermc.cumulus.response.CustomFormResponse;
 import org.geysermc.cumulus.response.ModalFormResponse;
@@ -72,7 +72,7 @@ public class LoginEncryptionUtils {
             }
 
             if (lastKey != null) {
-                 if (!EncryptionUtils.verifyJwt(jwt, lastKey)) return false;
+                if (!EncryptionUtils.verifyJwt(jwt, lastKey)) return false;
             }
 
             JsonNode payloadNode = JSON_MAPPER.readTree(jwt.getPayload().toString());
