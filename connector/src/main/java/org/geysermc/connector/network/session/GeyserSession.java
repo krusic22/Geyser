@@ -219,6 +219,12 @@ public class GeyserSession implements CommandSender {
      */
     private final Set<Vector3i> lecternCache;
 
+    /**
+     * A list of all players that have a player head on with a custom texture.
+     * Our workaround for these players is to give them a custom skin and geometry to emulate wearing a custom skull.
+     */
+    private final Set<UUID> playerWithCustomHeads = new ObjectOpenHashSet<>();
+
     @Setter
     private boolean droppingLecternBook;
 
@@ -443,6 +449,12 @@ public class GeyserSession implements CommandSender {
     private ScheduledFuture<?> tickThread = null;
 
     private MinecraftProtocol protocol;
+
+    /**
+     * Whether advanced tooltips will be added to the player's items.
+     */
+    @Setter
+    private boolean advancedTooltips = false;
 
     public GeyserSession(GeyserConnector connector, BedrockServerSession bedrockServerSession, EventLoop eventLoop) {
         this.connector = connector;
