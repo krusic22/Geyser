@@ -75,6 +75,10 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.geysermc.common.PlatformType;
+import org.geysermc.cumulus.Form;
+import org.geysermc.cumulus.util.FormBuilder;
+import org.geysermc.floodgate.crypto.FloodgateCipher;
+import org.geysermc.floodgate.util.BedrockData;
 import org.geysermc.geyser.Constants;
 import org.geysermc.geyser.GeyserImpl;
 import org.geysermc.geyser.api.connection.GeyserConnection;
@@ -89,13 +93,9 @@ import org.geysermc.geyser.entity.type.player.SessionPlayerEntity;
 import org.geysermc.geyser.entity.type.player.SkullPlayerEntity;
 import org.geysermc.geyser.inventory.Inventory;
 import org.geysermc.geyser.inventory.PlayerInventory;
-import org.geysermc.cumulus.Form;
 import org.geysermc.geyser.level.WorldManager;
-import org.geysermc.cumulus.util.FormBuilder;
 import org.geysermc.geyser.level.physics.CollisionManager;
-import org.geysermc.floodgate.crypto.FloodgateCipher;
 import org.geysermc.geyser.network.netty.LocalSession;
-import org.geysermc.floodgate.util.BedrockData;
 import org.geysermc.geyser.registry.Registries;
 import org.geysermc.geyser.registry.type.BlockMappings;
 import org.geysermc.geyser.registry.type.ItemMappings;
@@ -218,7 +218,6 @@ public class GeyserSession implements GeyserConnection, CommandSender {
      */
     @Setter
     private int biomeGlobalPalette;
-
     /**
      * Stores the map between Java and Bedrock biome network IDs.
      */
@@ -470,6 +469,13 @@ public class GeyserSession implements GeyserConnection, CommandSender {
     @Setter
     private boolean advancedTooltips = false;
 
+    /**
+     * The thread that will run every 50 milliseconds - one Minecraft tick.
+     */
+    private ScheduledFuture<?> tickThread = null;
+
+    private MinecraftProtocol protocol;
+
     public GeyserSession(GeyserImpl geyser, BedrockServerSession bedrockServerSession, EventLoop eventLoop) {
         this.geyser = geyser;
         this.upstream = new UpstreamSession(bedrockServerSession);
@@ -529,13 +535,6 @@ public class GeyserSession implements GeyserConnection, CommandSender {
         this.remotePort = geyser.getConfig().getRemote().getPort();
         this.remoteAuthType = geyser.getConfig().getRemote().getAuthType();
     }
-
-    /**
-     * The thread that will run every 50 milliseconds - one Minecraft tick.
-     */
-    private ScheduledFuture<?> tickThread = null;
-
-    private MinecraftProtocol protocol;
 
     /**
      * Send all necessary packets to load Bedrock into the server
@@ -764,7 +763,7 @@ public class GeyserSession implements GeyserConnection, CommandSender {
                     geyser.getBootstrap().getSocketAddress(), upstream.getAddress().getAddress().getHostAddress(), this.protocol);
         } else {
             downstream = new TcpClientSession(this.remoteAddress, this.remotePort, this.protocol);
-        disableSrvResolving();
+            disableSrvResolving();
         }
 
         if (geyser.getConfig().getRemote().isUseProxyProtocol()) {
@@ -791,7 +790,7 @@ public class GeyserSession implements GeyserConnection, CommandSender {
                             encryptedData = cipher.encryptFromString(BedrockData.of(
                                     clientData.getGameVersion(),
                                     protocol.getProfile().getName(),
-                                    authData.getXboxUUID(),
+                                    authData.xuid(),
                                     clientData.getDeviceOs().ordinal(),
                                     clientData.getLanguageCode(),
                                     clientData.getUiProfile().ordinal(),
@@ -926,8 +925,8 @@ public class GeyserSession implements GeyserConnection, CommandSender {
             setDaylightCycle(true);
         }
 
-            downstream.connect();
-        }
+        downstream.connect();
+    }
 
     public void disconnect(String reason) {
         if (!closed) {

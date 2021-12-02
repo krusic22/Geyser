@@ -35,82 +35,82 @@ import org.geysermc.geyser.registry.type.ItemMapping;
 
 import javax.annotation.Nonnull;
 
-    @Data
-    public class GeyserItemStack {
-        public static final GeyserItemStack EMPTY = new GeyserItemStack(0, 0, null);
-        private int amount;
+@Data
+public class GeyserItemStack {
+    public static final GeyserItemStack EMPTY = new GeyserItemStack(0, 0, null);
 
-        private final int javaId;
-        private int netId;
-        private CompoundTag nbt;
+    private final int javaId;
+    private int amount;
+    private CompoundTag nbt;
+    private int netId;
 
-        private GeyserItemStack(int javaId, int amount, CompoundTag nbt) {
-            this(javaId, amount, nbt, 1);
-        }
-
-        private GeyserItemStack(int javaId, int amount, CompoundTag nbt, int netId) {
-            this.javaId = javaId;
-            this.amount = amount;
-            this.nbt = nbt;
-            this.netId = netId;
-        }
-
-        public static @Nonnull GeyserItemStack from(ItemStack itemStack) {
-            return itemStack == null ? EMPTY : new GeyserItemStack(itemStack.getId(), itemStack.getAmount(), itemStack.getNbt());
-        }
-
-        public int getJavaId() {
-            return isEmpty() ? 0 : javaId;
-        }
-
-        public int getAmount() {
-            return isEmpty() ? 0 : amount;
-        }
-
-        public CompoundTag getNbt() {
-            return isEmpty() ? null : nbt;
-        }
-
-        public int getNetId() {
-            return isEmpty() ? 0 : netId;
-        }
-
-        public void add(int add) {
-            amount += add;
-        }
-
-        public void sub(int sub) {
-            amount -= sub;
-        }
-
-        public ItemStack getItemStack() {
-            return getItemStack(amount);
-        }
-
-        public ItemStack getItemStack(int newAmount) {
-            return isEmpty() ? null : new ItemStack(javaId, newAmount, nbt);
-        }
-
-        public ItemData getItemData(GeyserSession session) {
-            ItemData itemData = ItemTranslator.translateToBedrock(session, getItemStack());
-            itemData.setNetId(getNetId());
-            itemData.setUsingNetId(true); // Seems silly - this should probably be on the protocol level
-            return itemData;
-        }
-
-        public ItemMapping getMapping(GeyserSession session) {
-            return session.getItemMappings().getMapping(this.javaId);
-        }
-
-        public boolean isEmpty() {
-            return amount <= 0 || javaId == 0;
-        }
-
-        public GeyserItemStack copy() {
-            return copy(amount);
-        }
-
-        public GeyserItemStack copy(int newAmount) {
-            return isEmpty() ? EMPTY : new GeyserItemStack(javaId, newAmount, nbt == null ? null : nbt.clone(), netId);
-        }
+    private GeyserItemStack(int javaId, int amount, CompoundTag nbt) {
+        this(javaId, amount, nbt, 1);
     }
+
+    private GeyserItemStack(int javaId, int amount, CompoundTag nbt, int netId) {
+        this.javaId = javaId;
+        this.amount = amount;
+        this.nbt = nbt;
+        this.netId = netId;
+    }
+
+    public static @Nonnull GeyserItemStack from(ItemStack itemStack) {
+        return itemStack == null ? EMPTY : new GeyserItemStack(itemStack.getId(), itemStack.getAmount(), itemStack.getNbt());
+    }
+
+    public int getJavaId() {
+        return isEmpty() ? 0 : javaId;
+    }
+
+    public int getAmount() {
+        return isEmpty() ? 0 : amount;
+    }
+
+    public CompoundTag getNbt() {
+        return isEmpty() ? null : nbt;
+    }
+
+    public int getNetId() {
+        return isEmpty() ? 0 : netId;
+    }
+
+    public void add(int add) {
+        amount += add;
+    }
+
+    public void sub(int sub) {
+        amount -= sub;
+    }
+
+    public ItemStack getItemStack() {
+        return getItemStack(amount);
+    }
+
+    public ItemStack getItemStack(int newAmount) {
+        return isEmpty() ? null : new ItemStack(javaId, newAmount, nbt);
+    }
+
+    public ItemData getItemData(GeyserSession session) {
+        ItemData itemData = ItemTranslator.translateToBedrock(session, getItemStack());
+        itemData.setNetId(getNetId());
+        itemData.setUsingNetId(true); // Seems silly - this should probably be on the protocol level
+        return itemData;
+    }
+
+    public ItemMapping getMapping(GeyserSession session) {
+        return session.getItemMappings().getMapping(this.javaId);
+    }
+
+    public boolean isEmpty() {
+        return amount <= 0 || javaId == 0;
+    }
+
+    public GeyserItemStack copy() {
+        return copy(amount);
+    }
+
+    public GeyserItemStack copy(int newAmount) {
+        return isEmpty() ? EMPTY : new GeyserItemStack(javaId, newAmount, nbt == null ? null : nbt.clone(), netId);
+    }
+}

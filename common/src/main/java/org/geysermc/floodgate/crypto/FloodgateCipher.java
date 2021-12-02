@@ -25,10 +25,12 @@
  */
 
 package org.geysermc.floodgate.crypto;
+
 import org.geysermc.floodgate.util.InvalidFormatException;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import java.security.Key;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Responsible for both encrypting and decrypting data
