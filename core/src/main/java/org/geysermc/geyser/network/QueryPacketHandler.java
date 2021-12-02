@@ -84,18 +84,16 @@ public class QueryPacketHandler {
         return buffer.readableBytes() >= (2 + 1 + 4) && buffer.readUnsignedShort() == 0xFEFD;
     }
 
-    @Override
-    public boolean handle(SetLocalPlayerAsInitializedPacket packet) {
-        LanguageUtils.loadGeyserLocale(session.getLocale());
-
-        if (!session.isLoggedIn() && !session.isLoggingIn() && (session.getRemoteAuthType() == AuthType.ONLINE || session.getRemoteAuthType() == AuthType.FLOODGATE)) {
-            // TODO it is safer to key authentication on something that won't change (UUID, not username)
-            if (!couldLoginUserByName(session.getAuthData().getName())) {
-                LoginEncryptionUtils.buildAndShowLoginWindow(session);
-            }
-            // else we were able to log the user in
+    /**
+     * Handles the query
+     */
+    private void handle() {
+        switch (type) {
+            case HANDSHAKE:
+                sendToken();
+            case STATISTICS:
+                sendQueryData();
         }
-        return translateAndDefault(packet);
     }
 
     /**
