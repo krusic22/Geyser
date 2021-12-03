@@ -40,7 +40,7 @@ public class BedrockSetLocalPlayerAsInitializedTranslator extends PacketTranslat
             if (!session.getUpstream().isInitialized()) {
                 session.getUpstream().setInitialized(true);
 
-                if (session.getRemoteAuthType() == AuthType.ONLINE) {
+                if (session.getRemoteAuthType() == AuthType.FLOODGATE) {
                     if (!session.isLoggedIn()) {
                         LoginEncryptionUtils.buildAndShowLoginWindow(session);
                     }
