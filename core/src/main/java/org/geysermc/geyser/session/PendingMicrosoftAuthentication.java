@@ -46,6 +46,10 @@ import java.util.concurrent.*;
  * It permits user to exit the server while they authorize Geyser to access their Microsoft account.
  */
 public class PendingMicrosoftAuthentication {
+    /**
+     * For GeyserConnect usage.
+     */
+    private boolean storeServerInformation = false;
     private final LoadingCache<String, AuthenticationTask> authentications;
 
     public PendingMicrosoftAuthentication(int timeoutSeconds) {
@@ -53,7 +57,8 @@ public class PendingMicrosoftAuthentication {
                 .build(new CacheLoader<>() {
                     @Override
                     public AuthenticationTask load(@NonNull String userKey) {
-                        return new AuthenticationTask(userKey, timeoutSeconds * 1000L);
+                        return storeServerInformation ? new ProxyAuthenticationTask(userKey, timeoutSeconds * 1000L)
+                                : new AuthenticationTask(userKey, timeoutSeconds * 1000L);
                     }
                 });
     }
@@ -65,6 +70,11 @@ public class PendingMicrosoftAuthentication {
     @SneakyThrows(ExecutionException.class)
     public AuthenticationTask getOrCreateTask(@Nonnull String userKey) {
         return authentications.get(userKey);
+    }
+
+    @SuppressWarnings("unused") // GeyserConnect
+    public void setStoreServerInformation() {
+        storeServerInformation = true;
     }
 
     public class AuthenticationTask {
@@ -81,8 +91,6 @@ public class PendingMicrosoftAuthentication {
         private boolean online = true;
 
         @Getter
-        private final CompletableFuture<MsaAuthenticationService.MsCodeResponse> code;
-        @Getter
         private final CompletableFuture<MsaAuthenticationService> authentication;
 
         @Getter
@@ -93,11 +101,7 @@ public class PendingMicrosoftAuthentication {
             this.timeoutMs = timeoutMs;
             this.remainingTimeMs = timeoutMs;
 
-            // Request the code
-            this.code = CompletableFuture.supplyAsync(this::tryGetCode);
             this.authentication = new CompletableFuture<>();
-            // Once the code is received, continuously try to request the access token, profile, etc
-            this.code.thenRun(() -> performLoginAttempt(System.currentTimeMillis()));
             this.authentication.whenComplete((r, ex) -> {
                 this.loginException = ex;
                 // avoid memory leak, in case player doesn't connect again
@@ -117,9 +121,20 @@ public class PendingMicrosoftAuthentication {
             authentications.invalidate(userKey);
         }
 
-        private MsaAuthenticationService.MsCodeResponse tryGetCode() throws CompletionException {
+        public CompletableFuture<MsaAuthenticationService.MsCodeResponse> getCode(boolean offlineAccess) {
+            // Request the code
+            CompletableFuture<MsaAuthenticationService.MsCodeResponse> code = CompletableFuture.supplyAsync(() -> tryGetCode(offlineAccess));
+            // Once the code is received, continuously try to request the access token, profile, etc
+            code.thenRun(() -> performLoginAttempt(System.currentTimeMillis()));
+            return code;
+        }
+
+        /**
+         * @param offlineAccess whether we want a refresh token for later use.
+         */
+        private MsaAuthenticationService.MsCodeResponse tryGetCode(boolean offlineAccess) throws CompletionException {
             try {
-                return msaAuthenticationService.getAuthCode();
+                return msaAuthenticationService.getAuthCode(offlineAccess);
             } catch (RequestException e) {
                 throw new CompletionException(e);
             }
@@ -156,6 +171,17 @@ public class PendingMicrosoftAuthentication {
         @Override
         public String toString() {
             return getClass().getSimpleName() + "{userKey='" + userKey + "'}";
+        }
+    }
+
+    @Getter
+    @Setter
+    public final class ProxyAuthenticationTask extends AuthenticationTask {
+        private String server;
+        private int port;
+
+        private ProxyAuthenticationTask(String userKey, long timeoutMs) {
+            super(userKey, timeoutMs);
         }
     }
 
