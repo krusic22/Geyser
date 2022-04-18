@@ -23,26 +23,19 @@
  * @link https://github.com/GeyserMC/Geyser
  */
 
-package org.geysermc.geyser.translator.level.block.entity;
-
-import com.github.steveice10.mc.protocol.data.game.entity.metadata.Position;
-import com.nukkitx.math.vector.Vector3i;
-import com.nukkitx.protocol.bedrock.packet.BlockEventPacket;
-import org.geysermc.geyser.session.GeyserSession;
-import org.geysermc.geyser.level.block.BlockStateValues;
+package org.geysermc.geyser.level;
 
 /**
- * Does not implement BlockEntityTranslator because it's only a block entity in Bedrock
+ * A data structure to represent what Bedrock believes are the height requirements for a specific dimension.
+ * As of 1.18.30, biome count is representative of the height of the world, and out-of-bounds chunks can crash
+ * the client.
+ *
+ * @param minY The minimum height Bedrock Edition will accept.
+ * @param height The maximum chunk height Bedrock Edition will accept, from the lowest point to the highest.
+ * @param doUpperHeightWarn whether to warn in the console if the Java dimension height exceeds Bedrock's.
  */
-public class NoteblockBlockEntityTranslator {
-
-    public static void translate(GeyserSession session, Position position) {
-        int blockState = session.getGeyser().getWorldManager().getBlockAt(session, position);
-        BlockEventPacket blockEventPacket = new BlockEventPacket();
-        blockEventPacket.setBlockPosition(Vector3i.from(position.getX(), position.getY(), position.getZ()));
-        blockEventPacket.setEventType(0);
-        blockEventPacket.setEventData(BlockStateValues.getNoteblockPitch(blockState));
-        session.sendUpstreamPacket(blockEventPacket);
-    }
-
+public record BedrockDimension(int minY, int height, boolean doUpperHeightWarn) {
+    public static BedrockDimension OVERWORLD = new BedrockDimension(-64, 384, true);
+    public static BedrockDimension THE_NETHER = new BedrockDimension(0, 128, false);
+    public static BedrockDimension THE_END = new BedrockDimension(0, 256, true);
 }
