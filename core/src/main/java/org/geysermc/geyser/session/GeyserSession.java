@@ -37,7 +37,6 @@ import com.github.steveice10.mc.protocol.MinecraftProtocol;
 import com.github.steveice10.mc.protocol.codec.MinecraftCodecHelper;
 import com.github.steveice10.mc.protocol.data.ProtocolState;
 import com.github.steveice10.mc.protocol.data.UnexpectedEncryptionException;
-import com.github.steveice10.mc.protocol.data.game.MessageType;
 import com.github.steveice10.mc.protocol.data.game.entity.metadata.Pose;
 import com.github.steveice10.mc.protocol.data.game.entity.object.Direction;
 import com.github.steveice10.mc.protocol.data.game.entity.player.GameMode;
@@ -81,6 +80,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import lombok.AccessLevel;
@@ -124,10 +125,12 @@ import org.geysermc.geyser.skin.FloodgateSkinUploader;
 import org.geysermc.geyser.text.ChatTypeEntry;
 import org.geysermc.geyser.text.GeyserLocale;
 import org.geysermc.geyser.text.MinecraftLocale;
-import org.geysermc.geyser.text.TextDecoration;
 import org.geysermc.geyser.translator.inventory.InventoryTranslator;
 import org.geysermc.geyser.translator.text.MessageTranslator;
-import org.geysermc.geyser.util.*;
+import org.geysermc.geyser.util.ChunkUtils;
+import org.geysermc.geyser.util.DimensionUtils;
+import org.geysermc.geyser.util.LoginEncryptionUtils;
+import org.geysermc.geyser.util.MathUtils;
 
 import javax.annotation.Nonnull;
 import java.net.ConnectException;
@@ -337,7 +340,7 @@ public class GeyserSession implements GeyserConnection, CommandSender {
      */
     private final Map<String, JavaDimension> dimensions = new Object2ObjectOpenHashMap<>(3);
 
-    private final Int2ObjectMap<ChatTypeEntry> chatTypes = new Int2ObjectOpenHashMap<>(7);
+    private final Int2ObjectMap<ChatTypeEntry> chatTypes = new Int2ObjectOpenHashMap<>(8);
 
     @Setter
     private int breakingBlock;
@@ -498,7 +501,7 @@ public class GeyserSession implements GeyserConnection, CommandSender {
      * Stores a map of all statistics sent from the server.
      * The server only sends new statistics back to us, so in order to show all statistics we need to cache existing ones.
      */
-    private final Map<Statistic, Integer> statistics = new HashMap<>();
+    private final Object2IntMap<Statistic> statistics = new Object2IntOpenHashMap<>(0);
 
     /**
      * Whether we're expecting statistics to be sent back to us.
@@ -547,6 +550,8 @@ public class GeyserSession implements GeyserConnection, CommandSender {
 
         this.playerEntity = new SessionPlayerEntity(this);
         collisionManager.updatePlayerBoundingBox(this.playerEntity.getPosition());
+
+        ChatTypeEntry.applyDefaults(chatTypes);
 
         this.playerInventory = new PlayerInventory();
         this.openInventory = null;
@@ -1685,7 +1690,7 @@ public class GeyserSession implements GeyserConnection, CommandSender {
      *
      * @param statistics Updated statistics values
      */
-    public void updateStatistics(@NonNull Map<Statistic, Integer> statistics) {
+    public void updateStatistics(@Nonnull Object2IntMap<Statistic> statistics) {
         if (this.statistics.isEmpty()) {
             // Initialize custom statistics to 0, so that they appear in the form
             for (CustomStatistic customStatistic : CustomStatistic.values()) {
