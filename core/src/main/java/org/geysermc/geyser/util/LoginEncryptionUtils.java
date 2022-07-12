@@ -310,7 +310,14 @@ public class LoginEncryptionUtils {
                         .label("geyser.auth.login.form.details.desc")
                         .input("geyser.auth.login.form.details.email", "Username", "")
                         //.input("geyser.auth.login.form.details.pass", "123456", "") -- Not Needed
-                        .closedOrInvalidResultHandler(() -> buildAndShowLoginDetailsWindow(session))
+                        .invalidResultHandler(() -> buildAndShowLoginDetailsWindow(session))
+                        .closedResultHandler(() -> {
+                            if (session.isMicrosoftAccount()) {
+                                buildAndShowMicrosoftAuthenticationWindow(session);
+                            } else {
+                                buildAndShowLoginWindow(session);
+                            }
+                        })
                         .validResultHandler((response) -> session.authenticate(response.next(), response.next())));
     }
 
