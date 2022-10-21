@@ -23,19 +23,44 @@
  * @link https://github.com/GeyserMC/Geyser
  */
 
-package org.geysermc.geyser.platform.standalone.command;
+package org.geysermc.geyser.platform.fabric;
 
-import org.geysermc.geyser.GeyserImpl;
-import org.geysermc.geyser.command.GeyserCommandManager;
+import net.fabricmc.loader.api.ModContainer;
 
-public class GeyserStandaloneCommandManager extends GeyserCommandManager {
+import java.util.ArrayList;
+import java.util.List;
 
-    public GeyserStandaloneCommandManager(GeyserImpl geyser) {
-        super(geyser);
+/**
+ * A wrapper for Fabric mod information to be presented in a Geyser dump
+ */
+public class ModInfo {
+
+    private final String name;
+    private final String id;
+    private final String version;
+    private final List<String> authors;
+
+    public ModInfo(ModContainer mod) {
+        this.name = mod.getMetadata().getName();
+        this.id = mod.getMetadata().getId();
+        this.authors = new ArrayList<>();
+        mod.getMetadata().getAuthors().forEach((person) -> this.authors.add(person.getName()));
+        this.version = mod.getMetadata().getVersion().getFriendlyString();
     }
 
-    @Override
-    public String description(String command) {
-        return ""; // this is not sent over the protocol, so we return none
+    public String getName() {
+        return this.name;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getVersion() {
+        return this.version;
+    }
+
+    public List<String> getAuthors() {
+        return this.authors;
     }
 }

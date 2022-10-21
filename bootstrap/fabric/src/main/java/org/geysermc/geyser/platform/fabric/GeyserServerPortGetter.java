@@ -23,39 +23,26 @@
  * @link https://github.com/GeyserMC/Geyser
  */
 
-package org.geysermc.geyser.util;
+package org.geysermc.geyser.platform.fabric;
 
-import com.github.steveice10.opennbt.tag.builtin.CompoundTag;
-import com.github.steveice10.opennbt.tag.builtin.ListTag;
-import com.github.steveice10.opennbt.tag.builtin.Tag;
+import net.minecraft.server.MinecraftServer;
 
-import javax.annotation.Nonnull;
-import java.util.Iterator;
-
-public record JavaCodecEntry() {
-
+/**
+ * Represents a getter to the server port in the dedicated server and in the integrated server.
+ */
+public interface GeyserServerPortGetter {
     /**
-     * Iterate over a Java Edition codec and return each entry as a CompoundTag
+     * Returns the server port.
+     *
+     * <ul>
+     *     <li>If it's a dedicated server, it will return the server port specified in the {@code server.properties} file.</li>
+     *     <li>If it's an integrated server, it will return the LAN port if opened, else -1.</li>
+     * </ul>
+     *
+     * The reason is that {@link MinecraftServer#getPort()} doesn't return the LAN port if it's the integrated server,
+     * and changing the behavior of this method via a mixin should be avoided as it could have unexpected consequences.
+     *
+     * @return The server port.
      */
-    public static Iterable<CompoundTag> iterateAsTag(CompoundTag tag) {
-        ListTag value = tag.get("value");
-        Iterator<Tag> originalIterator = value.iterator();
-        return new Iterable<>() {
-            @Nonnull
-            @Override
-            public Iterator<CompoundTag> iterator() {
-                return new Iterator<>() {
-                    @Override
-                    public boolean hasNext() {
-                        return originalIterator.hasNext();
-                    }
-
-                    @Override
-                    public CompoundTag next() {
-                        return (CompoundTag) originalIterator.next();
-                    }
-                };
-            }
-        };
-    }
+    int geyser$getServerPort();
 }

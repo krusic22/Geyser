@@ -23,19 +23,28 @@
  * @link https://github.com/GeyserMC/Geyser
  */
 
-package org.geysermc.geyser.platform.bungeecord.command;
+package org.geysermc.geyser.platform.fabric;
 
-import org.geysermc.geyser.GeyserImpl;
-import org.geysermc.geyser.command.GeyserCommandManager;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class GeyserBungeeCommandManager extends GeyserCommandManager {
+/**
+ * A class outline of the permissions.yml file
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class GeyserFabricPermissions {
 
-    public GeyserBungeeCommandManager(GeyserImpl geyser) {
-        super(geyser);
-    }
+    /**
+     * The minimum permission level a command source must have in order for it to run commands that are restricted
+     */
+    @JsonIgnore
+    public static final int RESTRICTED_MIN_LEVEL = 2;
 
-    @Override
-    public String description(String command) {
-        return ""; // no support for command descriptions in bungee
+    @JsonProperty("commands")
+    private String[] commands;
+
+    public String[] getCommands() {
+        return this.commands;
     }
 }
