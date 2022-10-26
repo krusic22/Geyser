@@ -5,7 +5,7 @@ netty = "4.1.80.Final"
 guava = "29.0-jre"
 gson = "2.3.1" # Provided by Spigot 1.8.8
 websocket = "1.5.1"
-protocol = "2.9.13-20221018.122404-1"
+protocol = "2.9.14-20221025.193624-1"
 raknet = "1.6.28-20220125.214016-6"
 mcauthlib = "d9d773e"
 mcprotocollib = "9f78bd5"
@@ -26,6 +26,9 @@ commodore = "2.2"
 bungeecord = "a7c6ede"
 velocity = "3.0.0"
 sponge = "8.0.0"
+fabric-minecraft = "1.19.1"
+fabric-loader = "0.14.8"
+fabric-api = "0.58.5+1.19.1"
 
 [libraries]
 jackson-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "jackson" }
@@ -63,9 +66,9 @@ paper-api = { group = "io.papermc.paper", name = "paper-api", version.ref = "pap
 paper-mojangapi = { group = "io.papermc.paper", name = "paper-mojangapi", version.ref = "paper" }
 
 # check these on https://modmuss50.me/fabric.html
-fabric-minecraft = { group = "com.mojang", name = "minecraft", version = "1.19.1" }
-fabric-loader = { group = "net.fabricmc", name = "fabric-loader", version = "0.14.8" }
-fabric-api = { group = "net.fabricmc.fabric-api", name = "fabric-api", version = "0.58.5+1.19.1" }
+fabric-minecraft = { group = "com.mojang", name = "minecraft", version.ref = "fabric-minecraft" }
+fabric-loader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabric-loader" }
+fabric-api = { group = "net.fabricmc.fabric-api", name = "fabric-api", version.ref = "fabric-api" }
 
 adapters-spigot = { group = "org.geysermc.geyser.adapters", name = "spigot-all", version.ref = "adapters" }
 bungeecord-proxy = { group = "com.github.SpigotMC.BungeeCord", name = "bungeecord-proxy", version.ref = "bungeecord" }
