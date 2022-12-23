@@ -23,31 +23,19 @@
  * @link https://github.com/GeyserMC/Geyser
  */
 
-package org.geysermc.geyser.registry.type;
+package org.geysermc.geyser.translator.protocol.java;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundDisguisedChatPacket;
+import org.geysermc.geyser.session.GeyserSession;
+import org.geysermc.geyser.translator.protocol.PacketTranslator;
+import org.geysermc.geyser.translator.protocol.Translator;
+import org.geysermc.geyser.translator.text.MessageTranslator;
 
-import java.util.List;
+@Translator(packet = ClientboundDisguisedChatPacket.class)
+public class JavaDisguisedChatTranslator extends PacketTranslator<ClientboundDisguisedChatPacket> {
 
-/**
- * Represents Geyser's own serialized item information before being processed per-version
- */
-@Data
-public class GeyserMappingItem {
-    @JsonProperty("bedrock_identifier") String bedrockIdentifier;
-    @JsonProperty("bedrock_data") int bedrockData;
-    Integer firstBlockRuntimeId;
-    Integer lastBlockRuntimeId;
-    @JsonProperty("stack_size") int stackSize = 64;
-    @JsonProperty("tool_type") String toolType;
-    @JsonProperty("tool_tier") String toolTier;
-    @JsonProperty("armor_type") String armorType;
-    @JsonProperty("protection_value") int protectionValue;
-    @JsonProperty("max_damage") int maxDamage = 0;
-    @JsonProperty("repair_materials") List<String> repairMaterials;
-    @JsonProperty("has_suspicious_stew_effect") boolean hasSuspiciousStewEffect = false;
-    @JsonProperty("dye_color") int dyeColor = -1;
-    @JsonProperty("is_edible") boolean edible = false;
-    @JsonProperty("is_entity_placer") boolean entityPlacer = false;
+    @Override
+    public void translate(GeyserSession session, ClientboundDisguisedChatPacket packet) {
+        MessageTranslator.handleChatPacket(session, packet.getMessage(), packet.getChatType(), packet.getTargetName(), packet.getName());
+    }
 }
