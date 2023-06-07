@@ -238,6 +238,14 @@ public class CustomItemRegistryPopulator {
             computeArmorProperties(armorType, customItemData.protectionValue(), componentBuilder);
         }
 
+        if (customItemData.isEdible()) {
+            computeConsumableProperties(itemProperties, componentBuilder, 1, customItemData.canAlwaysEat());
+        }
+
+        if (customItemData.isChargeable()) {
+            computeChargeableProperties(itemProperties, componentBuilder);
+        }
+
         computeRenderOffsets(isHat, customItemData, componentBuilder);
 
         if (creativeGroup != null) {
@@ -245,6 +253,10 @@ public class CustomItemRegistryPopulator {
         }
         if (creativeCategory.isPresent()) {
             itemProperties.putInt("creative_category", creativeCategory.getAsInt());
+        }
+
+        if (customItemData.isFoil()) {
+            itemProperties.putBoolean("foil", true);
         }
 
         componentBuilder.putCompound("item_properties", itemProperties.build());
