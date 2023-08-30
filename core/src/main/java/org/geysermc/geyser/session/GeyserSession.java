@@ -465,6 +465,12 @@ public class GeyserSession implements GeyserConnection, GeyserCommandSource {
     private long lastInteractionTime;
 
     /**
+     * Stores when the player started to break a block. Used to allow correct break time for custom blocks.
+     */
+    @Setter
+    private long blockBreakStartTime;
+
+    /**
      * Stores whether the player intended to place a bucket.
      */
     @Setter
@@ -929,7 +935,15 @@ public class GeyserSession implements GeyserConnection, GeyserCommandSource {
         } else {
             downstream = new TcpClientSession(this.remoteServer.address(), this.remoteServer.port(), this.protocol);
             this.downstream = new DownstreamSession(downstream);
-            disableSrvResolving();
+
+            boolean resolveSrv = false;
+            try {
+                resolveSrv = this.remoteServer.resolveSrv();
+            } catch (AbstractMethodError | NoSuchMethodError ignored) {
+                // Ignore if the method doesn't exist
+                // This will happen with extensions using old APIs
+            }
+            this.downstream.getSession().setFlag(BuiltinFlags.ATTEMPT_SRV_RESOLVE, resolveSrv);
         }
 
         if (geyser.getConfig().getRemote().isUseProxyProtocol()) {
@@ -1413,13 +1427,6 @@ public class GeyserSession implements GeyserConnection, GeyserCommandSource {
         sendDownstreamPacket(swapHandsPacket);
     }
 
-    /**
-     * Will be overwritten for GeyserConnect.
-     */
-    protected void disableSrvResolving() {
-        this.downstream.getSession().setFlag(BuiltinFlags.ATTEMPT_SRV_RESOLVE, false);
-    }
-
     @Override
     public String name() {
         return null;
@@ -1563,6 +1570,17 @@ public class GeyserSession implements GeyserConnection, GeyserCommandSource {
         startGamePacket.setItemDefinitions(this.itemMappings.getItemDefinitions().values().stream().toList()); // TODO
         // startGamePacket.setBlockPalette(this.blockMappings.getBedrockBlockPalette());
 
+        // Needed for custom block mappings and custom skulls system
+        startGamePacket.getBlockProperties().addAll(this.blockMappings.getBlockProperties());
+
+        // See https://learn.microsoft.com/en-us/minecraft/creator/documents/experimentalfeaturestoggle for info on each experiment
+        // data_driven_items (Holiday Creator Features) is needed for blocks and items
+        startGamePacket.getExperiments().add(new ExperimentData("data_driven_items", true));
+        // Needed for block properties for states
+        startGamePacket.getExperiments().add(new ExperimentData("upcoming_creator_features", true));
+        // Needed for certain molang queries used in blocks and items
+        startGamePacket.getExperiments().add(new ExperimentData("experimental_molang_features", true));
+
         startGamePacket.setVanillaVersion("*");
         startGamePacket.setInventoriesServerAuthoritative(true);
         startGamePacket.setServerEngine(""); // Do we want to fill this in?
@@ -1575,11 +1593,6 @@ public class GeyserSession implements GeyserConnection, GeyserCommandSource {
         startGamePacket.setAuthoritativeMovementMode(AuthoritativeMovementMode.CLIENT);
         startGamePacket.setRewindHistorySize(0);
         startGamePacket.setServerAuthoritativeBlockBreaking(false);
-
-        if (GameProtocol.isPre1_20(this)) {
-            startGamePacket.getExperiments().add(new ExperimentData("next_major_update", true));
-            startGamePacket.getExperiments().add(new ExperimentData("sniffer", true));
-        }
 
         upstream.sendPacket(startGamePacket);
     }
