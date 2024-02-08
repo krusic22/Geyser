@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 GeyserMC. http://geysermc.org
+ * Copyright (c) 2019-2024 GeyserMC. http://geysermc.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,29 +23,18 @@
  * @link https://github.com/GeyserMC/Geyser
  */
 
-package org.geysermc.geyser.network.netty.handler;
+package org.geysermc.geyser.registry.populator;
 
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-import lombok.RequiredArgsConstructor;
-import org.cloudburstmc.netty.channel.raknet.RakPing;
-import org.cloudburstmc.netty.channel.raknet.RakPong;
-import org.cloudburstmc.netty.channel.raknet.config.RakChannelOption;
-import org.geysermc.geyser.network.netty.GeyserServer;
+import org.geysermc.geyser.item.type.Item;
+import org.geysermc.geyser.registry.type.GeyserMappingItem;
 
-@ChannelHandler.Sharable
-@RequiredArgsConstructor
-public class RakPingHandler extends SimpleChannelInboundHandler<RakPing> {
-    public static final String NAME = "rak-ping-handler";
 
-    private final GeyserServer server;
+public class Conversion630_649 {
 
-    @Override
-    protected void channelRead0(ChannelHandlerContext ctx, RakPing msg) {
-        long guid = ctx.channel().config().getOption(RakChannelOption.RAK_GUID);
-
-        RakPong pong = msg.reply(guid, this.server.onQuery(ctx.channel(), msg.getSender()).toByteBuf());
-        ctx.writeAndFlush(pong);
+    static GeyserMappingItem remapItem(@SuppressWarnings("unused") Item item, GeyserMappingItem mapping) {
+        if (mapping.getBedrockIdentifier().equalsIgnoreCase("minecraft:scute")) {
+            return mapping.withBedrockIdentifier("minecraft:turtle_scute");
+        }
+        return mapping;
     }
 }
