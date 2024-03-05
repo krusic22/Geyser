@@ -151,6 +151,10 @@ public class PlayerEntity extends LivingEntity implements GeyserPlayerEntity {
         addPlayerPacket.setGameType(GameType.SURVIVAL); //TODO
         addPlayerPacket.setAbilityLayers(BASE_ABILITY_LAYER); // Recommended to be added since 1.19.10, but only needed here for permissions viewing
         addPlayerPacket.getMetadata().putFlags(flags);
+
+        // Since 1.20.60, the nametag does not show properly if this is not set :/
+        // The nametag does disappear properly when the player is invisible though.
+        dirtyMetadata.put(EntityDataTypes.NAMETAG_ALWAYS_SHOW, (byte) 1);
         dirtyMetadata.apply(addPlayerPacket.getMetadata());
 
         setFlagsDirty(false);
