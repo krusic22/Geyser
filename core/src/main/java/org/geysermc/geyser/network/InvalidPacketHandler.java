@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022 GeyserMC. http://geysermc.org
+ * Copyright (c) 2019-2024 GeyserMC. http://geysermc.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,25 +23,36 @@
  * @link https://github.com/GeyserMC/Geyser
  */
 
-package org.geysermc.geyser.translator.protocol.java.entity;
+package org.geysermc.geyser.network;
 
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.ClientboundRemoveEntitiesPacket;
-import org.geysermc.geyser.entity.type.Entity;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import lombok.RequiredArgsConstructor;
 import org.geysermc.geyser.session.GeyserSession;
-import org.geysermc.geyser.translator.protocol.PacketTranslator;
-import org.geysermc.geyser.translator.protocol.Translator;
 
-@Translator(packet = ClientboundRemoveEntitiesPacket.class)
-public class JavaRemoveEntitiesTranslator extends PacketTranslator<ClientboundRemoveEntitiesPacket> {
+import java.util.stream.Stream;
+
+@RequiredArgsConstructor
+public class InvalidPacketHandler extends ChannelInboundHandlerAdapter {
+    public static final String NAME = "rak-error-handler";
+
+    private final GeyserSession session;
 
     @Override
-    public void translate(GeyserSession session, ClientboundRemoveEntitiesPacket packet) {
-        for (int entityId : packet.getEntityIds()) {
-            Entity entity = session.getEntityCache().getEntityByJavaId(entityId);
-            if (entity != null) {
-                session.getEntityCache().removeEntity(entity);
-            }
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        Throwable rootCause = Stream.iterate(cause, Throwable::getCause)
+                .filter(element -> element.getCause() == null)
+                .findFirst()
+                .orElse(cause);
+
+
+        if (!(rootCause instanceof IllegalArgumentException)) {
+            super.exceptionCaught(ctx, cause);
+            return;
         }
+
+        // Kick users that try to send illegal packets
+        session.getGeyser().getLogger().warning(rootCause.getMessage());
+        session.disconnect("Invalid packet received!");
     }
 }
-
