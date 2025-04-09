@@ -65,9 +65,6 @@ public final class GameProtocol {
     private static final PacketCodec DEFAULT_JAVA_CODEC = MinecraftCodec.CODEC;
 
     static {
-        SUPPORTED_BEDROCK_CODECS.add(CodecProcessor.processCodec(Bedrock_v748.CODEC.toBuilder()
-            .minecraftVersion("1.21.40 - 1.21.44")
-            .build()));
         SUPPORTED_BEDROCK_CODECS.add(CodecProcessor.processCodec(Bedrock_v766.CODEC.toBuilder()
             .minecraftVersion("1.21.50 - 1.21.51")
             .build()));
@@ -99,6 +96,10 @@ public final class GameProtocol {
 
     public static boolean isPreCreativeInventoryRewrite(int protocolVersion) {
         return protocolVersion < 776;
+    }
+
+    public static boolean is1_21_70orHigher(GeyserSession session) {
+        return session.protocolVersion() >= Bedrock_v786.CODEC.getProtocolVersion();
     }
 
     /**
