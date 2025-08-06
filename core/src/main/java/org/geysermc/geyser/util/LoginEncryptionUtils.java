@@ -37,6 +37,7 @@ import org.cloudburstmc.protocol.bedrock.packet.ServerToClientHandshakePacket;
 import org.cloudburstmc.protocol.bedrock.util.ChainValidationResult;
 import org.cloudburstmc.protocol.bedrock.util.ChainValidationResult.IdentityData;
 import org.cloudburstmc.protocol.bedrock.util.EncryptionUtils;
+import org.geysermc.cumulus.form.CustomForm;
 import org.geysermc.cumulus.form.ModalForm;
 import org.geysermc.cumulus.form.SimpleForm;
 import org.geysermc.cumulus.response.SimpleFormResponse;
@@ -151,18 +152,30 @@ public class LoginEncryptionUtils {
                 SimpleForm.builder()
                         .translator(GeyserLocale::getPlayerLocaleString, session.locale())
                         .title("geyser.auth.login.form.notice.title")
-                        .content("geyser.auth.login.form.notice.desc")
-                        .button("geyser.auth.login.form.notice.btn_login.microsoft")
+                        .content("geyser.auth.login.form.details.title")
+                        .button("geyser.auth.login.form.notice.title")
                         .button("geyser.auth.login.form.notice.btn_disconnect")
                         .closedOrInvalidResultHandler(() -> buildAndShowLoginWindow(session))
                         .validResultHandler((response) -> {
                             if (response.clickedButtonId() == 0) {
-                                session.authenticateWithMicrosoftCode();
+                                buildAndShowLoginDetailsWindow(session);
                                 return;
                             }
 
                             session.disconnect(GeyserLocale.getPlayerLocaleString("geyser.auth.login.form.disconnect", session.locale()));
                         }));
+    }
+
+    public static void buildAndShowLoginDetailsWindow(GeyserSession session) {
+        session.sendForm(
+                CustomForm.builder()
+                        .translator(GeyserLocale::getPlayerLocaleString, session.locale())
+                        .title("geyser.auth.login.form.notice.title")
+                        .label("geyser.auth.login.form.details.title")
+                        .input("geyser.gui.table.username", "username", "")
+                        .invalidResultHandler(() -> buildAndShowLoginDetailsWindow(session))
+                        .closedResultHandler(() -> buildAndShowLoginWindow(session))
+                        .validResultHandler((response) -> session.authenticate(response.next())));
     }
 
     /**
