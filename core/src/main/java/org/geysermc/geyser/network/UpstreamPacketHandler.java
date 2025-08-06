@@ -266,7 +266,7 @@ public class UpstreamPacketHandler extends LoggingPacketHandler {
         switch (packet.getStatus()) {
             case COMPLETED -> {
                 finishedResourcePackSending = true;
-                if (geyser.config().java().authType() != AuthType.ONLINE) {
+                if (geyser.config().java().authType() != AuthType.ONLINE && geyser.config().java().authType() != AuthType.FLOODGATE) {
                     session.authenticate(session.getAuthData().name());
                 } else if (!couldLoginUserByName(session.getAuthData().name())) {
                     // We must spawn the white world
