@@ -2589,7 +2589,7 @@ public class GeyserSession implements GeyserConnection, GeyserCommandSource, Jav
 
     @Override
     public @NonNull String bedrockUsername() {
-        return authData != null ? authData.name() : "unknown (pre-login)";
+        return protocol != null ? protocol.getProfile().getName() : "unknown (pre-login)";
     }
 
     @Override
