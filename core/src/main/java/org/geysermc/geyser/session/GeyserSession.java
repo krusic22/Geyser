@@ -2355,7 +2355,7 @@ public class GeyserSession implements GeyserConnection, GeyserCommandSource {
 
     @Override
     public @NonNull String bedrockUsername() {
-        return authData.name();
+        return protocol.getProfile().getName();
     }
 
     @Override
